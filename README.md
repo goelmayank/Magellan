@@ -7,7 +7,7 @@ The tool will serve two purposes:
 * To simulate how a given allocation of resources will be used over time, having made initial assumptions, **and**
 * To view actual resource usage over a "real" demonstration
 
-The components of the tool will be designed keeping the above two goals in mind.
+The components of the tool will be designed <u>keeping the above two goals in mind</u>.
 
 ## How will it work?
 
