@@ -6,14 +6,14 @@ var metros = [];
 var autos = [];
 var persons = [];
 var s = 5;
-var stationLocations = [ [38,1], [31,4], [27,9], [22,13], [19,18], [15,21], [11,26], [10,31], [15,35], [25,38]];
-var rate = 1;
+var stationLocations = [ [38,1], [31,4], [27,9], [22,13], [19,18], [15,21], [11,26], [10,31], [15,35], [25,38]]; 
+var rate = 5;
 
 function setup(){
 	createCanvas(1100, 1000);
 	g = new graph();
 	g.addEdges();
-
+	
 
 	metroStations = new metroStations();
 	rectMode(CENTER);
@@ -21,34 +21,34 @@ function setup(){
 	for(var i = 0 ; i < 200 ; i++){					// add road-blocks where there aren't stations.
 		var x = floor(random(2,49))
 		var y = floor(random(2,49))
-
+		
 		if(!metroStations.hasLocation(x,y) )
 			g.addBlock(x,y);
 	}
 
 	metros.push(new metroTrain(0,true));
-	for(var i = 1 ; i < metroStations.stations.length-1 ; i++){		// add a up and down metroTrain at each station.
+	for(var i = 1 ; i < metroStations.stations.length-1 ; i++){		// add a up and down metroTrain at each station. 
 		metros.push(new metroTrain(i,true));
 		metros.push(new metroTrain(i,false));
 	}
 	metros.push(new metroTrain(metroStations.stations.length-1,false));
 
 
-	var count =0;
+	var count =0; 
 	for(var i = 0 ; i < 250 ; i++){
-
+		
 		var x = floor(random(2,49))
 		var y = floor(random(2,49))
-
+		
 		if(!g.hasBlock(x,y) && !metroStations.hasLocation(x,y))		//Spawn Autos at random positions, where there isn't a block or a station.
 			{ autos.push(new Auto(x,y, count ));
-
-
-
+				
+			
+		
 		//var z = autos[count].chooseDestStation();					// Choose and go to nearest station (elementary functionality) through shortest path.
 		//autos[count].setDestination(metroStations.stations[z].i , metroStations.stations[z].j);
 		count++;
-		}
+		}	
 	}
 
 
@@ -56,9 +56,9 @@ function setup(){
 	persons.push(new person(14,14,38,38,0));
 	persons.push(new person(2 , 2, 2,35,1));
 	persons.push(new person(15,26,48, 1,2));
-
+	
 	//insert n people randomly.
-
+	
 	for (var i = 0; i < autos.length-100; i++) {
 		pushperson();
 	}
@@ -67,7 +67,7 @@ function setup(){
 	for (var i = 0; i < persons.length; i++) {
 		persons[i].callAuto1();
 	}
-
+	
 	var t = createP("+/- keys for rate; UP for pause/resume, RIGHT for next frame");
   	t.position(width, 20);
 
@@ -101,23 +101,23 @@ function keyPressed(){
 
 var personCount = 3;
 function pushperson(){
-
+	
 		var x = floor(random(2,49))
 		var y = floor(random(2,49))
-
+		
 
 		var x2 = floor(random(2,49))
 		var y2 = floor(random(2,49))
-
+		
 		if(!g.hasBlock(x,y) && !metroStations.hasLocation(x,y)){
 			var l = persons.length;
 			persons.push(new person(x,y,x2,y2,personCount));
-			 console.log("New person :" + personCount);
+			// console.log("New person :" + personCount);
 			// console.log(persons[l]);
 			persons[l].callAuto1();
 			personCount++;
 		}
-
+	
 }
 
 
@@ -148,7 +148,7 @@ function draw(){							// draw Everything: the Graph, edges, autos, their paths,
 		}
 	}
 
-
+	
 
 	metroStations.show();
 
@@ -164,7 +164,7 @@ function draw(){							// draw Everything: the Graph, edges, autos, their paths,
 	textSize(15);
 
 	if(unoccupiedcounter < minUnoccupied) minUnoccupied = unoccupiedcounter;
-
+	
 	 text("unoccu :" + unoccupiedcounter , width-100 , 60);
 	 text("minUnocc :" + minUnoccupied , width-100 , 80);
 
@@ -172,33 +172,34 @@ function draw(){							// draw Everything: the Graph, edges, autos, their paths,
 	text("rate : " + rate, width-100, 20);
 	text("people : " + persons.length, width-100, 40);
 
-
+	
 
 	for(var i = 0 ; i < metros.length ; i++){
 		metros[i].show();
 	}
 
-	if((frameCount%Math.floor(700/rate))==0){
-
-
-		if(random(1) < 0.6 && persons.length < 400){   // increase this probability to see more people turning up.
-		for (var i = 0; i < 2*ceil(rate); i++) {
+	if((frameCount%Math.floor(900/rate))==0){								
+		
+		   
+		if(random(1) < 0.5 && persons.length < autos.length+200){   // increase this probability to see more people turning up.
+		for (var i = 0; i < 2*ceil(Math.sqrt(rate)); i++) {
 			pushperson();
 			}
 		}
 
+		if(rate<20){var c=10; while(c-->0)pushperson();  }
 
 		for(var i = 0 ; i < metros.length ; i++){
 		metros[i].update();
 		}
 
 		for (var i = 0; i < persons.length; i++) {
-
+			
 			if(persons[i].waitingAtStation && persons[i].journeyId==1){
-			 	 console.log("person " + i + ": Hi Metro-Train ");
+			 	// console.log("person " + i + ": Hi Metro-Train ");
 			 	var z = persons[i].chooseMetro();
-
-
+			 	
+			 	
 			}
 			else if(persons[i].seatedMetro){
 				if(persons[i].alottedMetro.cur == persons[i].endStation){
@@ -206,7 +207,7 @@ function draw(){							// draw Everything: the Graph, edges, autos, their paths,
 					persons[i].alottedMetro = null;
 					persons[i].journeyId = 3;
 
-					 console.log("person " + persons[i].id + " reached end station " + persons[i].endStation);
+					// console.log("person " + persons[i].id + " reached end station " + persons[i].endStation);
 					persons[i].callAuto1();
 				}
 			}
@@ -219,7 +220,7 @@ function draw(){							// draw Everything: the Graph, edges, autos, their paths,
 		persons[i].show();
 	}
 
-
+	
 }
 
 
@@ -240,7 +241,7 @@ function node(i,j){
 
 	this.show = function(){
 		ellipse(this.x,this.y,3,3);
-
+		
 
 		// textSize(8.5);
 		// text("" + i +"," + j , this.x,this.y);
@@ -265,17 +266,17 @@ function edge(i1,j1,i2,j2){
 
 function graph(debug=false){
 	this.nodes = [];
-
+	
 	this.log= ()=>{};
 	if(debug)this.log = console.log;
 
 	this.Blocks = [];
 	for( var i = 0 ; i < 50 ; i++){
 		this.nodes[i] = [];
-
+		
 	}
 
-
+	
 	for( var i = 0 ; i < 50 ; i++){
 		for( var j = 0 ; j < 50 ; j++){
 			this.nodes[i][j] = new node(i,j);
@@ -288,10 +289,10 @@ function graph(debug=false){
 	this.addEdges = function(){
 		for( var i = 1 ; i < 49 ; i++){
 			for( var j = 1 ; j < 49 ; j++){
-				this.nodes[i][j].edges.push(new edge(i,j,i+1,j));
-				this.nodes[i][j].edges.push(new edge(i,j,i,j+1));
-				this.nodes[i][j].edges.push(new edge(i,j,i-1,j));
-				this.nodes[i][j].edges.push(new edge(i,j,i,j-1));
+				this.nodes[i][j].edges.push(new edge(i,j,i+1,j));  
+				this.nodes[i][j].edges.push(new edge(i,j,i,j+1));	
+				this.nodes[i][j].edges.push(new edge(i,j,i-1,j));	
+				this.nodes[i][j].edges.push(new edge(i,j,i,j-1));	
 			}
 		}
 	}
@@ -323,15 +324,15 @@ function graph(debug=false){
 
 		return this.nodes[x][y].isBlock;
 	}
+	
 
 
 
-
-
+	
 	this.show = function(){
-
+		
 		// FOR DISPLAYING EACH NODE AND ITS EDGES - WARNING : VERY SLOW [ O(n^3) every frame]
-
+		
 		// for( var i = 0 ; i < 50 ; i++){
 		// 	for( var j = 0 ; j < 50 ; j++){
 		// 		this.nodes[i][j].show();
@@ -341,7 +342,7 @@ function graph(debug=false){
 		// 	}
 		// }
 
-
+		
 
 		stroke(0);
 		strokeWeight(0.5);
@@ -378,7 +379,7 @@ function graph(debug=false){
 		var n1 = this.nodes[i][j];
 		var n2 = this.nodes[i2][j2];
 
-
+		
 		this.unvisit();
 		for( var i = 0 ; i < 50 ; i++){
 			for( var j = 0 ; j < 50 ; j++){
@@ -389,7 +390,7 @@ function graph(debug=false){
 
 		var path = [];
 		return this.Dijsktras(n1,n2);
-
+		
 	}
 
 
@@ -432,7 +433,7 @@ function graph(debug=false){
 			}
 
 		}
-
+		
 	}
 
 	//invert stack generated from extracting previous pointers of chained nodes, to construct the path for Auto.
@@ -454,14 +455,14 @@ function graph(debug=false){
 		return path;
 	}
 
-
+	
 
 	this.Astar = function(i,j,i2,j2){
 		this.log('graph >> Astar');
 		var n1 = this.nodes[i][j];
 		var n2 = this.nodes[i2][j2];
 
-
+		
 		this.unvisit();
 		for( var m = 0 ; m < 50 ; m++){
 			for( var n = 0 ; n < 50 ; n++){
@@ -484,7 +485,7 @@ function graph(debug=false){
 			n2 = n2.edges[Math.floor(Math.random()*4)].n2
 		}
 		return this.AstarAlgo(n1,n2);
-
+		
 	}
 
 
@@ -556,7 +557,7 @@ function graph(debug=false){
 		// debugger;
 		// throw new Error('no path');
 		return [];
-
+		
 	}
 
 }
@@ -575,16 +576,16 @@ function station(x,y){
 
 	this.show = function(){
 		noStroke();
-		fill(0,100);
+		fill(0);
 		ellipse(x,y,27,27);
-		fill(255,0,0,100);
+		fill(255,0,0);
 		rect(x,y,16,16);
 	}
 }
 
 
 
-
+							
 function metroStations(){
 	this.stations = [];
 
@@ -592,10 +593,10 @@ function metroStations(){
 	for(var i = 0 ; i < stationLocations.length ; i++){
 		this.stations.push(new station( stationLocations[i][0]*20 ,stationLocations[i][1]*20 ));
 	}
+	
 
 
-
-
+	
 	this.show = function(){
 		for(var  i = 0 ; i < this.stations.length-1 ; i++){
 			this.stations[i].show();
@@ -635,7 +636,7 @@ function metroTrain(i , dir){
 
 	this.x2 = metroStations.stations[this.next].x;
 	this.y2 = metroStations.stations[this.next].y;
-
+	
 
 	this.show = function(){
 		fill(0,250,250);
@@ -645,7 +646,7 @@ function metroTrain(i , dir){
 		else ellipse(this.x+s,this.y , 9,9);
 
 
-		this.x+= (this.x2 - this.x)*0.007*rate;
+		this.x+= (this.x2 - this.x)*0.007*rate;		
 		this.y+= (this.y2 - this.y)*0.007*rate;
 
 	}
@@ -669,7 +670,7 @@ function metroTrain(i , dir){
 		this.y2 = metroStations.stations[this.next].y;
 	}
 
-
+	
 
 }
 
@@ -685,8 +686,8 @@ function Auto (i,j , id, debug=false){
 	this.cur = 1;
 	//this.moveRandomly = false;
 																	// Normal speed:  0.005 - 0.1.  ;  currently sped up.
-	this.speed = random(0.03, 0.01);							//updationSpeed parameter depends on speed, dictates frame at which updated.
-	this.updation = floor(random(220,200)/(this.speed*80));		// speed inverse relation.
+	this.speed = random(0.005, 0.01);							//updationSpeed parameter depends on speed, dictates frame at which updated.
+	this.updation = floor(random(220,200)/(this.speed*80));		// speed inverse relation. 
 
 	this.reachedDest = false;
 	this.occupied = false;
@@ -702,7 +703,7 @@ function Auto (i,j , id, debug=false){
 		this.i = Math.min(ceil(this.x/20), 48);
 		this.j = Math.min(ceil(this.y/20), 48);
 		// this.log(this.id + ':Auto >> show')
-
+		
 		// if(this.occupied && this.reachedDest && this.stillOccupied){ //  for debugging
 		// 	this.highlight();
 		// 	this.person.highlight();
@@ -719,7 +720,7 @@ function Auto (i,j , id, debug=false){
 
 
 		fill(0);
-		var color = this.occupied?'#00f':'#f00';
+		var color = this.occupied?'#f00':'#009999';
 		stroke(color);
 		//if(this.cur  < this.path.length-1){
 		if(this.path.length>0){
@@ -729,11 +730,11 @@ function Auto (i,j , id, debug=false){
 		//}
 		rect(this.x,this.y,6,6);
 
-		this.updation = floor(220/(this.speed*rate*80));
+		this.updation = floor(2.4/(this.speed*rate));
 		if(frameCount%this.updation==0)
 			this.update();
 	}
-
+	
 	this.highlight = function(){ //  for debugging
 		stroke('#093');
 		ellipse(this.x, this.y, 30, 30);
@@ -750,13 +751,13 @@ function Auto (i,j , id, debug=false){
 	this.setDestination = function(i2,j2){
 		this.tripNo++;
 		this.log(this.id + ':Auto >> setDestination')
-		console.log("Auto id : " + this.id);
-
+		//console.log("Auto id : " + this.id);
+		
 		this.reset();
 		this.log('AUTO : ------ call Astar with ', this.i, this.j, i2, j2, '------');
-		//this.path = g.Dijsktra(this.i,this.j,i2,j2);		//choose this for a more "filled" screen..!
+		//this.path = g.Dijsktra(this.i,this.j,i2,j2);		//choose this for a more "filled" screen..!	
 		this.path = g.Astar(this.i,this.j,i2,j2);		//TWO GREAT SHORTEST PATH ALGORITHMS. CHOOSE ANY.
-
+		
 		this.log(this.id + ':Auto >>found Path', this.path);
 		this.log(this.id + ':Auto >> setDestination')
 		return this.path;
@@ -780,7 +781,7 @@ function Auto (i,j , id, debug=false){
 
 	this.update = function(){
 		// this.log(this.id + ':Auto >> update')
-		if(this.cur < this.path.length-1){
+		if(this.cur < this.path.length-1){ 
 			this.cur = this.cur+1;
 			this.i = floor(this.x/20);
 			this.j = floor(this.y/20);
@@ -817,7 +818,7 @@ function person(i,j,i2,j2, id, debug=false){
 
 	this.firstStation = null;
 	this.endStation = null;
-	this.journeyId = 0;		// 0 - waiting for auto, 1 - boarded auto ,
+	this.journeyId = 0;		// 0 - waiting for auto, 1 - boarded auto , 
 
 	this.x = this.i*20;
 	this.y = this.j*20;
@@ -828,28 +829,27 @@ function person(i,j,i2,j2, id, debug=false){
 
 	this.show = function(){
 		// this.log(this.id , ': Person >> show');
-
+		
 		this.i = ceil(this.x/20);
 		this.j = ceil(this.y/20);
 
-
+		
 		if(this.alottedAuto!=null && this.seatedAuto){
 			this.x = this.alottedAuto.x;
 			this.y = this.alottedAuto.y;
-
+			
 
 			if(this.alottedAuto.reachedDest) {
-
-				 console.log("Auto " + this.alottedAuto.id + " Reached dest");
+				
+				// console.log("Auto " + this.alottedAuto.id + " Reached dest");
 				this.alottedAuto.occupied=false;
 				// this.alottedAuto.stillOccupied=false;
 				this.alottedAuto = null;
 				this.seatedAuto = false;
-
+				
 				if(this.journeyId == 1){
 					this.waitingAtStation = true;
-
-				 console.log("person " +this.id + ": waiting at station " + this.firstStation);
+					// console.log("person " +this.id + ": waiting at station " + this.firstStation);
 				}
 
 				if(this.journeyId == 4){
@@ -858,7 +858,7 @@ function person(i,j,i2,j2, id, debug=false){
 					// console.log(index);
 
 					persons.splice(index,1);
-
+					
 				}
 			}
 		}
@@ -881,8 +881,8 @@ function person(i,j,i2,j2, id, debug=false){
 				this.seatedAuto = true;
 				this.alottedAuto.occupied=true;
 				// this.alottedAuto.stillOccupied=false;
-				 console.log("person " + this.id + ": Hi Auto " + this.alottedAuto.id);
-
+				// console.log("person " + this.id + ": Hi Auto " + this.alottedAuto.id);
+				
 				if(this.journeyId == 0){
 					var z = this.alottedAuto.chooseDestStation();
 					var path = this.alottedAuto.setDestination(metroStations.stations[z].i , metroStations.stations[z].j);
@@ -951,7 +951,7 @@ function person(i,j,i2,j2, id, debug=false){
 
 		if(z>=0) {
 			this.alottedAuto = autos[z];
-			 console.log("person " + this.id + " called Auto " + z);
+			// console.log("person " + this.id + " called Auto " + z);
 			this.log(this.id,':Person >> call auto', this.i, this.j, this.x, this.y);
 			autos[z].setDestination(this.i,this.j);
 			autos[z].occupied=true;
@@ -980,7 +980,7 @@ function person(i,j,i2,j2, id, debug=false){
 	this.chooseMetro = function(){
 		this.log(this.id , ':Person >> chooseMetro');
 		this.endStation = this.findEndStation();
-
+		
 		var up = (this.endStation > this.firstStation);
 
 		for (var i = 0; i < metros.length; i++) {
@@ -989,7 +989,7 @@ function person(i,j,i2,j2, id, debug=false){
 					this.alottedMetro = metros[i];
 					this.seatedMetro = true;
 					this.waitingAtStation = false;
-					 console.log(this.alottedMetro);
+					// console.log(this.alottedMetro);
 					return i;
 					//break;
 				}
@@ -1025,14 +1025,14 @@ function MinHeapPriority() {
 	this.bubbleUp = function(index) {
 	  while (index > 0) {
 	    var parent = Math.floor((index + 1) / 2) - 1;
-
+	    
 
 	    if (this.data[parent].priority > this.data[index].priority) {
 	      var temp = this.data[parent];
 	      this.data[parent] = this.data[index];
 	      this.data[index] = temp;
 	    }
-
+	    
 	    index = parent;
 	  }
 	}
@@ -1058,11 +1058,11 @@ function MinHeapPriority() {
 	    var child = (index+1)*2;
 	    var sibling = child - 1;
 	    var toSwap = null;
-
+	    
 	    if (child < this.data.length && this.data[index].priority > this.data[child].priority) {
 	      toSwap = child;
 	    }
-
+	    
 	    if ( (child < this.data.length && sibling >= 0 ) && this.data[index].priority > this.data[sibling].priority && (this.data[child] == null || (this.data[child] !== null && this.data[sibling].priority < this.data[child].priority))) {
 	        toSwap = sibling;
 	    }
@@ -1070,11 +1070,11 @@ function MinHeapPriority() {
 	    if (toSwap == null) {
 	      break;
 	    }
-
+	    
 	    var temp = this.data[toSwap];
 	    this.data[toSwap] = this.data[index];
 	    this.data[index] = temp;
-
+	    
 	    index = toSwap;
 	  }
 	}
@@ -1095,14 +1095,14 @@ MinHeap.prototype.insert = function(node) {
 MinHeap.prototype.bubbleUp = function(index) {
   while (index > 0) {
     var parent = Math.floor((index + 1) / 2) - 1;
-
+    
 
     if (this.data[parent].cost > this.data[index].cost) {
       var temp = this.data[parent];
       this.data[parent] = this.data[index];
       this.data[index] = temp;
     }
-
+    
     index = parent;
   }
 };
@@ -1111,9 +1111,9 @@ MinHeap.prototype.extractMin = function() {
   var min = this.data[0];
 
   this.data[0] = this.data.pop();
-
+  
   this.bubbleDown(0);
-
+  
   return min;
 };
 
@@ -1122,11 +1122,11 @@ MinHeap.prototype.bubbleDown = function(index) {
     var child = (index+1)*2;
     var sibling = child - 1;
     var toSwap = null;
-
+    
     if (child < this.data.length && this.data[index].cost > this.data[child].cost) {
       toSwap = child;
     }
-
+    
     if ( (child < this.data.length && sibling >= 0 ) && this.data[index].cost > this.data[sibling].cost && (this.data[child] == null || (this.data[child] !== null && this.data[sibling].cost < this.data[child].cost))) {
         toSwap = sibling;
     }
@@ -1134,11 +1134,15 @@ MinHeap.prototype.bubbleDown = function(index) {
     if (toSwap == null) {
       break;
     }
-
+    
     var temp = this.data[toSwap];
     this.data[toSwap] = this.data[index];
     this.data[index] = temp;
-
+    
     index = toSwap;
   }
 };
+
+
+
+
