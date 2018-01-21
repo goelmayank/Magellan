@@ -35,4 +35,3 @@ Press F12. Auto id's are same as their position in array.
 Persons id is the number at which they spawned, getIndex(persons, id) can be used to get the person.
 
 
-

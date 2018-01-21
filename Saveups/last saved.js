@@ -7,13 +7,10 @@ var autos = [];
 var persons = [];
 var s = 5;
 var stationLocations = [ [38,1], [31,4], [27,9], [22,13], [19,18], [15,21], [11,26], [10,31], [15,35], [25,38]]; 
-var rate = 5;
-var fixedBusRoutes = [ [1,1,10,3] , [11,4,16,10] , [30,30,40,48] , [48,48,10,43] , [22,22,40,27] , [47,2,40,30]  ];
-var busroutes = [];
-var buses = [];
+var rate = 1;
 
 function setup(){
-	createCanvas(1200, 1000);
+	createCanvas(1000, 1000);
 	g = new graph();
 	g.addEdges();
 	
@@ -25,7 +22,7 @@ function setup(){
 		var x = floor(random(2,49))
 		var y = floor(random(2,49))
 		
-		if(!metroStations.hasLocation(x,y) && !hasBusTermination(x,y) )
+		if(!metroStations.hasLocation(x,y) )
 			g.addBlock(x,y);
 	}
 
@@ -38,7 +35,7 @@ function setup(){
 
 
 	var count =0; 
-	for(var i = 0 ; i < 250 ; i++){
+	for(var i = 0 ; i < 150 ; i++){
 		
 		var x = floor(random(2,49))
 		var y = floor(random(2,49))
@@ -62,87 +59,17 @@ function setup(){
 	
 	//insert n people randomly.
 	
-	for (var i = 0; i < autos.length-100; i++) {
-		pushperson();
-	}
+	// for (var i = 0; i < 10; i++) {
+	// 	pushperson();
+	// }
 
 
 	for (var i = 0; i < persons.length; i++) {
 		persons[i].callAuto1();
 	}
 	
-	var t = createP("+/- keys for rate; UP for pause/resume, RIGHT for next frame");
-  	t.position(width, 20);
-
-  	var t2 = createP("Number of autos: " + autos.length);
-  	t2.position(width,100);
-
-
-
-  	//var busroute0=[[28,22],[27,22],[26,22],[25,22],[24,22],[23,22],[22,22],[21,22],[20,22],[20,21],[20,20],[19,20],[18,20],[17,20],[16,20]];
-  	
-  	
-  	for (var j = 0; j < fixedBusRoutes.length; j++) {
-  		
-  		// var x1 = floor(random(1,49));
-  		// var x2 = floor(random(1,49));
-  		// var y1 = floor(random(1,49));
-  		// var y2 = floor(random(1,49));
-
-		var x1 = fixedBusRoutes[j][0];
-  		var y1 = fixedBusRoutes[j][1];
-  		var x2 = fixedBusRoutes[j][2];
-  		var y2 = fixedBusRoutes[j][3];
-
-
-	  	var busrouter = g.Dijsktra(x1,y1,x2,y2);
-	  	
-		var route = [];
-	  	for (var i = 0; i < busrouter.length; i++) {
-	  		route[i] = [];
-	  		route[i][0] = busrouter[i].i;
-	  		route[i][1] = busrouter[i].j;
-	  	}
-	  	//console.log(route);
-	  	busroutes.push(new busroute(j,route));
-	  	busroutes[j].addbuses(floor( random(route.length/10,route.length*2/3)) ,floor(random(3,10)));
-
-	}
-  	
-
-
-	setInterval(checkAuto, 2000);
-}
-
-var loops= true;
-
-function hasBusTermination(x,y){
-	for(var i = 0 ; i < fixedBusRoutes.length ; i++){
-		if((x==fixedBusRoutes[i][0] && y==fixedBusRoutes[i][1])||(x==fixedBusRoutes[i][2] && y==fixedBusRoutes[i][3]))
-			{console.log("hoooo");
-				return true;
-				}
-	}
-
-	return false;
-}
-function keyPressed(){
-	if(keyCode == UP_ARROW){
-		if(loops){
-			noLoop();
-			loops=!loops;
-			console.log("PAUSE");
-		}
-		else{
-			loop();
-			loops=!loops;
-			console.log("resume");
-		}
-	}
-
-	if(keyCode == RIGHT_ARROW)
-		redraw();
-
+	
+	setInterval(checkAuto, 30000);
 }
 
 var personCount = 3;
@@ -168,76 +95,34 @@ function pushperson(){
 
 
 function checkAuto(){
-	var unalottedpeople=0;
 	for (var i = 0; i < persons.length; i++) {
 		if(persons[i].journeyId==0 && !persons[i].alottedAuto){
-			unalottedpeople++;
 			persons[i].callAuto1();
 		}
 	}
-	console.log(unalottedpeople);
 }
 
-var minUnoccupied = 10000;
 function draw(){							// draw Everything: the Graph, edges, autos, their paths, metros, metroStations.
 	background(255);
 	g.show();
 	// console.log(frameCount);
-
-	if(keyIsPressed){
-		if(key=='+'){
-			rate+=0.3;
-		}
-
-		if(key=='-'){
-			if(rate>0.4)rate-=0.3;
-		}
-	}
-
 	
 	
-	metroStations.show();
-	for (var i = 0; i < busroutes.length; i++) {
-		busroutes[i].show();
-	}
-	
-	showLegends();
-	var unoccupiedcounter = 0;
 	for(var i = 0 ; i < autos.length ; i++){
 		autos[i].showPath();
 		autos[i].show();
-		if(!autos[i].occupied)
-			unoccupiedcounter++;
 	}
-	fill(100);
-	noStroke();
-	textSize(15);
-
-	if(unoccupiedcounter < minUnoccupied) minUnoccupied = unoccupiedcounter;
-	
-	 text("unoccu :" + unoccupiedcounter , width-100 , 60);
-	 text("minUnocc :" + minUnoccupied , width-100 , 80);
-
-
-	text("rate : " + rate, width-100, 20);
-	text("people : " + persons.length, width-100, 40);
-
-	
+	metroStations.show();
 
 	for(var i = 0 ; i < metros.length ; i++){
 		metros[i].show();
 	}
 
-	if((frameCount%Math.floor(900/rate))==0){								
+	if((frameCount%Math.floor(700/rate))==0){								
 		
-		   
-		if(random(1) < 0.5 && persons.length < autos.length+200){   // increase this probability to see more people turning up.
-		for (var i = 0; i < 2*ceil(Math.sqrt(rate)); i++) {
-			pushperson();
-			}
-		}
+		while(random(1) < 0.65 && persons.length < 500) pushperson();    // increase this probability to see more people turning up. 
 
-		if(rate<20){var c=10; while(c-->0)pushperson();  }
+
 
 		for(var i = 0 ; i < metros.length ; i++){
 		metros[i].update();
@@ -262,18 +147,12 @@ function draw(){							// draw Everything: the Graph, edges, autos, their paths,
 				}
 			}
 		}
-
-
 	}
 
 	for (var i = 0; i < persons.length; i++) {
 		persons[i].show();
 	}
-	
 
-	for (var i = 0; i < buses.length; i++) {
-		buses[i].show();
-	}
 	
 }
 
@@ -607,88 +486,17 @@ function graph(debug=false){
 
 		}
 
-		// this.log('*************** no Path! ******************');
-		// debugger;
-		// throw new Error('no path');
-		return [];
+		this.log('*************** no Path! ******************');
+		debugger;
+		throw new Error('no path');
+		return null;
 		
 	}
 
 }
 
-var st = new station(1000,200)
-function showLegends(){
-	strokeWeight(5);
-	stroke(0);
-	line(980,0,980,980);
 
-	//station
-	noStroke();
-	fill(0);
-	ellipse(1000,200,21,21);
-	fill(255,0,0);
-	rect(1000,200,12,12);
-	
-	
-	
-	//bus
-	fill(0,50,250);
-	noStroke();
-	ellipse(1000,260, 5,5);
 
-	//train
-	fill(0,250,250);
-	stroke(0);
-	strokeWeight(2);
-	ellipse(1000,280 , 9,9);
-
-	//Occupied Auto
-	fill(0);
-	var color = '#f00';
-	stroke(color);
-	rect(1000,300,6,6);
-
-	//unoccupied 
-	fill(0);
-	var color = '#009999';
-	stroke(color);
-	rect(1000,320,6,6);
-
-	//person
-	strokeWeight(4);
-	stroke("#32ff00");
-	ellipse(1000, 240 - 8 , 4,4);
-	line(1000 , 240, 1000, 240 - 8);
-
-	//road
-	stroke(0);
-	strokeWeight(0.5);
-	line(990,340,1010,340);
-
-	//rail
-	stroke(0,170,170);
-	strokeWeight(2);
-	line(990,360,1010,360);
-
-	//busroute
-	stroke(250,250,0);
-	line(990,380,1010,380);
-	
-	//path
-	stroke(255,0,0);
-	line(990,400,1010,400);
-
-	//junction
-	stroke(0);
-	strokeWeight(0.8);
-	line(995,420,1005,420);
-	line(1000,415,1000,425);
-
-	//block
-	fill(150);	
-	rect(1000, 440, 13,13 );
-
-}
 
 
 
@@ -771,8 +579,8 @@ function metroTrain(i , dir){
 		else ellipse(this.x+s,this.y , 9,9);
 
 
-		this.x+= (this.x2 - this.x)*0.007*rate;		
-		this.y+= (this.y2 - this.y)*0.007*rate;
+		this.x+= (this.x2 - this.x)*0.005*rate;		
+		this.y+= (this.y2 - this.y)*0.005*rate;
 
 	}
 
@@ -811,14 +619,11 @@ function Auto (i,j , id, debug=false){
 	this.cur = 1;
 	//this.moveRandomly = false;
 																	// Normal speed:  0.005 - 0.1.  ;  currently sped up.
-	this.speed = random(0.005, 0.01);							//updationSpeed parameter depends on speed, dictates frame at which updated.
-	this.updation = floor(random(220,200)/(this.speed*80));		// speed inverse relation. 
+	this.speed = random(0.05, 0.03)*rate;							//updationSpeed parameter depends on speed, dictates frame at which updated.
+	this.updation = floor(random(120,200)/(this.speed*80));		// speed inverse relation. 
 
 	this.reachedDest = false;
 	this.occupied = false;
-
-	// this.stillOccupied = false; //  for debugging
-	this.person = null;			//  for debugging
 	this.log = ()=>{};
 	if(debug)this.log = console.log;
 
@@ -828,41 +633,18 @@ function Auto (i,j , id, debug=false){
 		this.i = Math.min(ceil(this.x/20), 48);
 		this.j = Math.min(ceil(this.y/20), 48);
 		// this.log(this.id + ':Auto >> show')
-		
-		// if(this.occupied && this.reachedDest && this.stillOccupied){ //  for debugging
-		// 	this.highlight();
-		// 	this.person.highlight();
-		// 	var auto = this;
-		// 	setTimeout(()=>{
-		// 		console.log(auto);
-		// 		debugger;
-		// 	}, 50);
-
-		// }
-		// else if(this.occupied && this.reachedDest){ //  for debugging
-		// 	this.stillOccupied =true;
-		// }
-
-
 		fill(0);
-		var color = this.occupied?'#f00':'#009999';
-		stroke(color);
+		stroke(255,0,0);
 		//if(this.cur  < this.path.length-1){
 		if(this.path.length>0){
-		this.x+=(this.path[this.cur].x - this.x)*this.speed*rate;
-		this.y+=(this.path[this.cur].y - this.y)*this.speed*rate;
+		this.x+=(this.path[this.cur].x - this.x)*this.speed;
+		this.y+=(this.path[this.cur].y - this.y)*this.speed;
 		}
 		//}
 		rect(this.x,this.y,6,6);
 
-		this.updation = floor(2.4/(this.speed*rate));
 		if(frameCount%this.updation==0)
 			this.update();
-	}
-	
-	this.highlight = function(){ //  for debugging
-		stroke('#093');
-		ellipse(this.x, this.y, 30, 30);
 	}
 
 
@@ -947,8 +729,6 @@ function person(i,j,i2,j2, id, debug=false){
 
 	this.x = this.i*20;
 	this.y = this.j*20;
-
-	this.activityLog;
 	this.log = ()=>{};
 	if(debug)this.log = console.log;
 
@@ -968,7 +748,6 @@ function person(i,j,i2,j2, id, debug=false){
 				
 				// console.log("Auto " + this.alottedAuto.id + " Reached dest");
 				this.alottedAuto.occupied=false;
-				// this.alottedAuto.stillOccupied=false;
 				this.alottedAuto = null;
 				this.seatedAuto = false;
 				
@@ -978,7 +757,7 @@ function person(i,j,i2,j2, id, debug=false){
 				}
 
 				if(this.journeyId == 4){
-					console.log("person " +this.id + " completed full journey");
+					console.log("person " +this.id + " completed full journey", persons);
 					var index = getIndex(persons, this.id);
 					// console.log(index);
 
@@ -1005,7 +784,6 @@ function person(i,j,i2,j2, id, debug=false){
 			if(this.alottedAuto.reachedDest){
 				this.seatedAuto = true;
 				this.alottedAuto.occupied=true;
-				// this.alottedAuto.stillOccupied=false;
 				// console.log("person " + this.id + ": Hi Auto " + this.alottedAuto.id);
 				
 				if(this.journeyId == 0){
@@ -1041,11 +819,6 @@ function person(i,j,i2,j2, id, debug=false){
 		this.waitingAtStation = false;
 	}
 
-	this.highlight =  () => {
-		stroke('#093');
-		ellipse(this.x, this.y, 10, 10);
-	}
-
 	this.getState = function(){
 		this.log(this.id , ':Person >> getState');
 		return {
@@ -1062,7 +835,7 @@ function person(i,j,i2,j2, id, debug=false){
 	}
 
 	this.callAuto1 = function(){
-		if(this.alottedAuto)return;
+
 		this.log(this.id , ':Person >> callAuto1, journeyId', this.journeyId);
 		min = 1000000;
 		var z = -1;
@@ -1080,7 +853,6 @@ function person(i,j,i2,j2, id, debug=false){
 			this.log(this.id,':Person >> call auto', this.i, this.j, this.x, this.y);
 			autos[z].setDestination(this.i,this.j);
 			autos[z].occupied=true;
-			autos[z].person = this;
 		}
 		else console.log("person " + this.id + ": Couldn't find auto within 10 blocks")
 		return z;
@@ -1267,99 +1039,4 @@ MinHeap.prototype.bubbleDown = function(index) {
     index = toSwap;
   }
 };
-
-
-
-
-function busroute(id, route){
-	this.route_id = id;
-	
-	
-	
-
-	this.route = route;
-
-	this.from = this.route[0];
-	this.to = this.route[route.length-1];
-
-	this.show = function(){
-		noFill();
-		
-		stroke(250,250,0);
-		strokeWeight(2);
-		for(var i = 0; i < this.route.length-1 ; i++){
-			line(this.route[i][0]*20,this.route[i][1]*20,this.route[i+1][0]*20,this.route[i+1][1]*20);
-		}
-	}
-
-	this.addbuses = function(n, freq){
-		var updation = 50*freq;
-
-		for(var i = 0; i < n ; i++){
-			buses.push(new bus(this.route_id*1000+i, this.route_id, true , floor(random(1,this.route.length-1)), updation));
-			buses.push(new bus(this.route_id*1000+i, this.route_id, false, floor(random(1,this.route.length-1)), updation));
-		}
-	}
-
-
-
-}
-
-
-function bus(id, route_id, dir, i, updation){
-	this.bus_id = id;
-	this.route_id = route_id;
-	this.route = busroutes[route_id].route;
-	this.up = dir;
-	this.cur = i;  // set i
-
-	//this.currentStation = metroStations.stations[this.cur];
-	if(this.up) this.next = this.cur+1;
-	else this.next = this.cur-1;
-
-	this.x = this.route[this.cur][0]*20;
-	this.y = this.route[this.cur][1]*20;
-
-	this.x2 = this.route[this.next][0]*20;
-	this.y2 = this.route[this.next][1]*20;
-
-	this.updation = updation + floor(random(-5,5));
-	
-
-	this.show = function(){
-		fill(0,50,250);
-		noStroke();
-		
-		ellipse(this.x,this.y , 5,5);
-		
-		this.x+= (this.x2 - this.x)*0.003*rate;		
-		this.y+= (this.y2 - this.y)*0.003*rate;
-
-		if(frameCount%this.updation==0) this.update();
-
-	}
-
-	this.update = function(){
-		
-		if( this.next == this.route.length-1 || this.next == 0){		// turn metro Upside down at Ending stations.
-			this.up = !this.up;
-		}
-
-
-		if(this.up) {
-			this.cur = this.next;
-			this.next = this.next+1;}
-		else {
-			this.cur = this.next;
-			this.next = this.next-1;
-		}
-
-		this.x2 = this.route[this.next][0]*20;
-		this.y2 = this.route[this.next][1]*20;
-	}
-
-
-
-}
-
 
