@@ -8,7 +8,7 @@ var persons = [];
 var s = 5;
 var stationLocations = [ [38,1], [31,4], [27,9], [22,13], [19,18], [15,21], [11,26], [10,31], [15,35], [25,38]]; 
 var rate = 5;
-var fixedBusRoutes = [ [1,1,10,3] , [11,4,16,10] , [30,30,40,48] , [48,48,10,43] , [22,22,40,27] , [47,2,40,30]  ];
+var fixedBusRoutes = [ [1,1,10,3,7,5] , [11,4,16,10,5,10] , [30,30,40,48,20,6] , [48,48,10,43,30,3] , [22,22,40,27,15,6] , [47,2,40,30,10,8]  ];
 var busroutes = [];
 var buses = [];
 
@@ -105,7 +105,8 @@ function setup(){
 	  	}
 	  	//console.log(route);
 	  	busroutes.push(new busroute(j,route));
-	  	busroutes[j].addbuses(floor( random(route.length/10,route.length*2/3)) ,floor(random(3,10)));
+	  	busroutes[j].addbuses(fixedBusRoutes[j][4], fixedBusRoutes[j][5]);      // 5th and 6th element of fixedroutes signify Noumber of buses on that route and Frequency.
+	  	//busroutes[j].addbuses(floor( random(route.length/10,route.length*2/3)) ,floor(random(3,10)));
 
 	}
   	
@@ -618,9 +619,28 @@ function graph(debug=false){
 
 var st = new station(1000,200)
 function showLegends(){
+	//canvas seperation.
 	strokeWeight(5);
 	stroke(0);
 	line(980,0,980,980);
+
+	noStroke();
+	fill(0);
+	text("Metro station", 1020,203);
+	text("Person", 1020,242);
+	text("Bus", 1020,263);
+	text("Metro Train", 1020,283);
+	text("Occupied Auto", 1020,303);
+	text("Unoccupied Auto", 1020,323);
+	text("City Road", 1020,343);
+	text("Metro Track", 1020,363);
+	text("Bus Route", 1020,383);
+	text("Auto Path", 1020,403);
+	text("Road Junction", 1020,423);
+	text("No junction (Block)", 1020,443);
+
+
+
 
 	//station
 	noStroke();
@@ -628,13 +648,15 @@ function showLegends(){
 	ellipse(1000,200,21,21);
 	fill(255,0,0);
 	rect(1000,200,12,12);
+
 	
 	
 	
 	//bus
-	fill(0,50,250);
-	noStroke();
-	ellipse(1000,260, 5,5);
+	fill(250,250,0);
+	strokeWeight(1.5);
+	stroke(55,85,200);
+	ellipse(1000,260, 8,8);
 
 	//train
 	fill(0,250,250);
@@ -671,11 +693,13 @@ function showLegends(){
 	line(990,360,1010,360);
 
 	//busroute
-	stroke(250,250,0);
+	stroke(55,85,200);
+	strokeWeight(2.5);
 	line(990,380,1010,380);
 	
 	//path
 	stroke(255,0,0);
+	strokeWeight(2);
 	line(990,400,1010,400);
 
 	//junction
@@ -1285,8 +1309,8 @@ function busroute(id, route){
 	this.show = function(){
 		noFill();
 		
-		stroke(250,250,0);
-		strokeWeight(2);
+		stroke(55,85,200);
+		strokeWeight(2.5);
 		for(var i = 0; i < this.route.length-1 ; i++){
 			line(this.route[i][0]*20,this.route[i][1]*20,this.route[i+1][0]*20,this.route[i+1][1]*20);
 		}
@@ -1327,10 +1351,12 @@ function bus(id, route_id, dir, i, updation){
 	
 
 	this.show = function(){
-		fill(0,50,250);
-		noStroke();
+		fill(250,250,0);
+		strokeWeight(1.5);
+
+		stroke(55,85,200);
 		
-		ellipse(this.x,this.y , 5,5);
+		ellipse(this.x,this.y , 8,8);
 		
 		this.x+= (this.x2 - this.x)*0.003*rate;		
 		this.y+= (this.y2 - this.y)*0.003*rate;
