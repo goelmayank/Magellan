@@ -8,16 +8,17 @@ var persons = [];
 var s = 5;
 var stationLocations = [ [38,1], [31,4], [27,9], [22,13], [19,18], [15,21], [11,26], [10,31], [15,35], [25,38]];
 var rate = 5;
-var fixedBusRoutes = [ [1,1,30,3,5,5] , [1,7,23,34,5,10] , [30,30,48,48,5,6] , [46,48,5,35,5,3] , [2,27,40,10,5,6] , [47,2,40,40,5,8]  ];
+var fixedBusRoutes = [ [1,1,30,3,7,5] , [1,7,23,34,5,10] , [30,30,48,48,6,6] , [46,48,5,35,10,3] , [2,27,40,10,6,6] , [47,2,40,40,5,8]  ];
 var busroutes = [];
 var buses = [];
-
+var busStops;
+var busStopLocations = [[1,1],[15,1]];
 function setup(){
 	createCanvas(1300, 1000);
 	g = new graph();
 	g.addEdges();
 
-
+	busStops = new busStops();
 	metroStations = new metroStations();
 	rectMode(CENTER);
 
@@ -195,7 +196,7 @@ function draw(){							// draw Everything: the Graph, edges, autos, their paths,
 		}
 	}
 
-
+	busStops.show()
 
 	metroStations.show();
 	for (var i = 0; i < busroutes.length; i++) {
@@ -230,7 +231,7 @@ function draw(){							// draw Everything: the Graph, edges, autos, their paths,
 	text("#People : " + persons.length, 1000, 40);
 	text("#Autos : " + autos.length, 1000, 60);
 	text("#Unoccupied :" + unoccupiedcounter , 1000 , 80);
-	text("%Unoccupied : " + Math.floor((unoccupiedcounter/autos.length).toFixed(2)*100) + "%" , 1000 , 100);
+	text("%Unoccupied : " + (unoccupiedcounter/autos.length).toFixed(2)*100 + "%" , 1000 , 100);
 
 	pop();
 	// text("minUnocc :" + minUnoccupied , 1000 , 80);
@@ -762,7 +763,41 @@ function station(x,y){
 	}
 }
 
+function busStops(){
+	this.stops = [];
 
+
+	for(var i = 0 ; i < busStopLocations.length ; i++){
+		this.stops.push(new station( busStopLocations[i][0]*20 ,busStopLocations[i][1]*20 ));
+	}
+
+
+
+
+	this.show = function(){
+		for(var  i = 0 ; i < this.stops.length-1 ; i++){
+			this.stops[i].show();
+			stroke(0,170,170);
+			strokeWeight(2);
+			line(this.stops[i].x-s, this.stops[i].y , this.stops[i+1].x-s, this.stops[i+1].y)
+			line(this.stops[i].x+s, this.stops[i].y , this.stops[i+1].x+s, this.stops[i+1].y)
+		}
+		this.stops[this.stops.length-1].show();
+	}
+
+	this.hasLocation = function(x,y){
+		for(var i = 0 ; i < busStopLocations.length ; i++){
+			if(busStopLocations[i][0]==x && busStopLocations[i][1]==y){
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
+
+}
 
 
 function metroStations(){
