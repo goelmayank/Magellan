@@ -8,12 +8,12 @@ var persons = [];
 var s = 5;
 var stationLocations = [ [38,1], [31,4], [27,9], [22,13], [19,18], [15,21], [11,26], [10,31], [15,35], [25,38]]; 
 var rate = 5;
-var fixedBusRoutes = [ [1,1,10,3,7,5] , [11,4,16,10,5,10] , [30,30,40,48,20,6] , [48,48,10,43,30,3] , [22,22,40,27,15,6] , [47,2,40,30,10,8]  ];
+var fixedBusRoutes = [ [1,1,30,3,17,5] , [1,7,23,34,10,10] , [30,30,48,48,20,6] , [46,48,5,35,30,3] , [2,27,40,10,20,6] , [47,2,40,40,20,8]  ];
 var busroutes = [];
 var buses = [];
 
 function setup(){
-	createCanvas(1200, 1000);
+	createCanvas(1300, 1000);
 	g = new graph();
 	g.addEdges();
 	
@@ -71,11 +71,11 @@ function setup(){
 		persons[i].callAuto1();
 	}
 	
-	var t = createP("+/- keys for rate; UP for pause/resume, RIGHT for next frame");
-  	t.position(width, 20);
+	// var t = createP("+/- keys for Changing Rate [Speed of visualization]");
+ //  	t.position(width, 20);
 
-  	var t2 = createP("Number of autos: " + autos.length);
-  	t2.position(width,100);
+ //  	var t2 = createP(" UP for pause/resume ");
+ //  	t2.position(width,100);
 
 
 
@@ -156,7 +156,7 @@ function pushperson(){
 		var x2 = floor(random(2,49))
 		var y2 = floor(random(2,49))
 		
-		if(!g.hasBlock(x,y) && !metroStations.hasLocation(x,y)){
+		if(!g.hasBlock(x,y) && !metroStations.hasLocation(x,y) && dist(x,y,x2,y2)>10){
 			var l = persons.length;
 			persons.push(new person(x,y,x2,y2,personCount));
 			// console.log("New person :" + personCount);
@@ -210,19 +210,30 @@ function draw(){							// draw Everything: the Graph, edges, autos, their paths,
 		if(!autos[i].occupied)
 			unoccupiedcounter++;
 	}
-	fill(100);
-	noStroke();
-	textSize(15);
+	
 
 	if(unoccupiedcounter < minUnoccupied) minUnoccupied = unoccupiedcounter;
+
+	push();
+	translate(0,100);	
+
+	fill(220);
+	rectMode(CORNER);
+	noStroke();
+	rect(990,5,170,120);
+	rectMode(CENTER);
+	fill(100);
 	
-	 text("unoccu :" + unoccupiedcounter , width-100 , 60);
-	 text("minUnocc :" + minUnoccupied , width-100 , 80);
-
-
-	text("rate : " + rate, width-100, 20);
-	text("people : " + persons.length, width-100, 40);
-
+	
+	textSize(15);
+	text("Rate : " + rate.toFixed(1),1000, 20);
+	text("#People : " + persons.length, 1000, 40);
+	text("#Autos : " + autos.length, 1000, 60);
+	text("#Unoccupied :" + unoccupiedcounter , 1000 , 80);
+	text("%Unoccupied : " + (unoccupiedcounter/autos.length).toFixed(2)*100 + "%" , 1000 , 100);
+	
+	pop();
+	// text("minUnocc :" + minUnoccupied , 1000 , 80);
 	
 
 	for(var i = 0 ; i < metros.length ; i++){
@@ -624,8 +635,22 @@ function showLegends(){
 	stroke(0);
 	line(980,0,980,980);
 
+	textSize(20);
+	stroke(0);
+	strokeWeight(0.5);
+	fill(255,0,0);
+	text("MAGELLAN", 1000,20);
 	noStroke();
+	textSize(15);
 	fill(0);
+	text("Visualization and Simulation", 1000,40);
+	
+	push();
+	translate(0,90);
+
+	noStroke();
+	fill(50);
+	textSize(16);
 	text("Metro station", 1020,203);
 	text("Person", 1020,242);
 	text("Bus", 1020,263);
@@ -640,7 +665,10 @@ function showLegends(){
 	text("No junction (Block)", 1020,443);
 
 
-
+	textSize(16);
+	text("+/- keys for Changing Rate",1000,600);
+	text( "[Speed of visualization]" , 1000,615);
+	text("UP for pause/resume", 1000,650);
 
 	//station
 	noStroke();
@@ -711,6 +739,8 @@ function showLegends(){
 	//block
 	fill(150);	
 	rect(1000, 440, 13,13 );
+
+	pop();
 
 }
 
@@ -1317,7 +1347,7 @@ function busroute(id, route){
 	}
 
 	this.addbuses = function(n, freq){
-		var updation = 50*freq;
+		var updation = 100*freq;
 
 		for(var i = 0; i < n ; i++){
 			buses.push(new bus(this.route_id*1000+i, this.route_id, true , floor(random(1,this.route.length-1)), updation));
@@ -1347,7 +1377,7 @@ function bus(id, route_id, dir, i, updation){
 	this.x2 = this.route[this.next][0]*20;
 	this.y2 = this.route[this.next][1]*20;
 
-	this.updation = updation + floor(random(-5,5));
+	this.updation = updation //+ floor(random(-5,5));
 	
 
 	this.show = function(){
@@ -1361,7 +1391,7 @@ function bus(id, route_id, dir, i, updation){
 		this.x+= (this.x2 - this.x)*0.003*rate;		
 		this.y+= (this.y2 - this.y)*0.003*rate;
 
-		if(frameCount%this.updation==0) this.update();
+		if(frameCount%floor((this.updation/rate))==0) this.update();
 
 	}
 
